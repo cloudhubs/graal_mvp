@@ -1,0 +1,146 @@
+{
+    "nodes": [
+      {
+        "nodeName": "A",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "B",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "C",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "D",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "E",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "F",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "Removed_G",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "Removed_H",
+        "nodeType": "service"
+      }
+    ],
+    "links": [
+      {
+        "source": "A",
+        "target": "D",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "A",
+        "target": "E",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/THIS_IN_A_BUT_THIS_DIFFERENT",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "B",
+        "target": "F",
+        "requests": [
+          {
+            "type": "GET_DIFF_FROM_A",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "C",
+        "target": "A",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/"
+          }
+        ]
+      },
+      {
+        "source": "D",
+        "target": "A",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "E",
+        "target": "B",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "F",
+        "target": "Removed_G",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "Removed_G",
+        "target": "Removed_H",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "A",
+        "target": "Removed_H",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      }
+    ]
+  }

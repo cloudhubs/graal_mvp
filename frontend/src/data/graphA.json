@@ -1,0 +1,176 @@
+{
+    "nodes": [
+      {
+        "nodeName": "A",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "B",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "C",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "D",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "E",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "F",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "New_G",
+        "nodeType": "service"
+      },
+      {
+        "nodeName": "New_H",
+        "nodeType": "service"
+      }
+    ],
+    "links": [
+      {
+        "source": "A",
+        "target": "D",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          },
+          {
+            "type": "POST",
+            "uri": "annything/a/THIS_ONLY_IN_A",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "A",
+        "target": "E",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets_Diff_from_B",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "B",
+        "target": "F",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "C",
+        "target": "A",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/DIFFERENT_FROM_B"
+          }
+        ]
+      },
+      {
+        "source": "C",
+        "target": "B",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "C",
+        "target": "D",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "D",
+        "target": "A",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "E",
+        "target": "B",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "F",
+        "target": "New_H",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "C",
+        "target": "New_G",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      },
+      {
+        "source": "New_H",
+        "target": "E",
+        "requests": [
+          {
+            "type": "POST",
+            "uri": "annything/api/v1/orderservice/order/tickets",
+            "endpointMsName": "ts-order-service",
+            "targetEndpointUri": "/api/v1/orderservice/order/tickets"
+          }
+        ]
+      }
+    ]
+  }
