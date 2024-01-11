@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 
 RUN apt-get -y update
-RUN apt-get install -y python python3 python3-distutils git wget gcc make g++ build-essential libz-dev zlib1g-dev vim zsh htop
+RUN apt-get install -y python python3 python3-distutils git wget gcc make g++ build-essential libz-dev zlib1g-dev vim zsh htop unzip
 
 # Clone all the repositories
 RUN git clone https://github.com/graalvm/mx.git
@@ -27,7 +27,7 @@ RUN mv apache-maven-3.9.6 /opt/
 ENV M2_HOME='/opt/apache-maven-3.9.6'
 ENV PATH="$M2_HOME/bin:$PATH"
 
-ENV PROPHET_PLUGIN_HOME=/
+ENV PROPHET_PLUGIN_HOME /
 
 # Compile trainticket
 RUN cd /train-ticket && mvn package -DskipTests=true
@@ -39,6 +39,13 @@ RUN cd /graal-prophet-utils && mvn clean package -DskipTests=true -X
 
 # Run the analysis
 #RUN . /envfile; cd /graal-prophet-utils && $JAVA_HOME/bin/java -jar target/graal-prophet-utils-0.0.8.jar ./config/trainticket-microservices.json true
+#
+## Copy the output files to the visualizator's data folder, so that they are loaded by default
+#RUN cp /output_trainTicket/entities.json /graal_mvp/frontend/src/data/contextMap.json;
+#RUN cp /output_trainTicket/communicationGraph.json /graal_mvp/frontend/src/data/communicationGraph.json;
+#
+## Start the visualizator
+#RUN cd /graal_mvp/frontend && npm install && npm start
 
 
 #RUN wget https://github.com/graalvm/labs-openjdk-11/releases/download/jvmci-22.3-b22/labsjdk-ce-11.0.20+8-jvmci-22.3-b22-linux-amd64.tar.gz
