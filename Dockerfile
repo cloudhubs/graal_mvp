@@ -30,7 +30,7 @@ ENV PATH="$M2_HOME/bin:$PATH"
 ENV PROPHET_PLUGIN_HOME /
 
 # Compile trainticket
-RUN cd /train-ticket && mvn package -DskipTests=true
+RUN cd /train-ticket && mvn install -DskipTests=true
 # Unpack the fatjars for simpler processing
 RUN bash /graal-prophet-utils/microservice-setup.sh
 
@@ -38,15 +38,22 @@ RUN bash /graal-prophet-utils/microservice-setup.sh
 RUN cd /graal-prophet-utils && mvn clean package -DskipTests=true -X
 
 # Run the analysis
-#RUN . /envfile; cd /graal-prophet-utils && $JAVA_HOME/bin/java -jar target/graal-prophet-utils-0.0.8.jar ./config/trainticket-microservices.json true
-#
-## Copy the output files to the visualizator's data folder, so that they are loaded by default
-#RUN cp /output_trainTicket/entities.json /graal_mvp/frontend/src/data/contextMap.json;
-#RUN cp /output_trainTicket/communicationGraph.json /graal_mvp/frontend/src/data/communicationGraph.json;
-#
-## Start the visualizator
-#RUN cd /graal_mvp/frontend && npm install && npm start
+RUN . /envfile; cd /graal-prophet-utils && $JAVA_HOME/bin/java -jar target/graal-prophet-utils-0.0.8.jar ./config/trainticket-microservices.json true
 
+# Copy the output files to the visualizer's data folder, so that they are loaded by default
+RUN cp /graal-prophet-utils/output_trainticket/entities.json /graal_mvp/frontend/src/data/contextMap.json;
+RUN cp /graal-prophet-utils/output_trainticket/communicationGraph.json /graal_mvp/frontend/src/data/communicationGraph.json;
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends npm curl
+RUN curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
+RUN BASH /tmp/nodesource_setup.sh
+RUN apt-get install -y nodejs
+
+## Build the visualizer
+RUN cd /graal_mvp/frontend && npm install
+
+#CMD ["cd", "/graal_mvp/frontend",  "&&", "npm start"]
+#EXPOSE 3000
 
 #RUN wget https://github.com/graalvm/labs-openjdk-11/releases/download/jvmci-22.3-b22/labsjdk-ce-11.0.20+8-jvmci-22.3-b22-linux-amd64.tar.gz
 #RUN tar xf labsjdk-ce-11.0.20+8-jvmci-22.3-b22-linux-amd64.tar.gz
