@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 
 RUN apt-get -y update
-RUN apt-get install -y python python3 python3-distutils git wget gcc make g++ build-essential libz-dev zlib1g-dev vim zsh htop unzip
+RUN apt-get install -y python python3 python3-distutils git wget gcc make g++ build-essential libz-dev zlib1g-dev vim zsh htop unzip curl
 
 # Clone all the repositories
 RUN git clone https://github.com/graalvm/mx.git
@@ -41,22 +41,17 @@ RUN cd /graal-prophet-utils && mvn clean package -DskipTests=true -X
 RUN . /envfile; cd /graal-prophet-utils && $JAVA_HOME/bin/java -jar target/graal-prophet-utils-0.0.8.jar ./config/trainticket-microservices.json true
 
 # Copy the output files to the visualizer's data folder, so that they are loaded by default
-RUN cp /graal-prophet-utils/output_trainticket/entities.json /graal_mvp/frontend/src/data/contextMap.json;
-RUN cp /graal-prophet-utils/output_trainticket/communicationGraph.json /graal_mvp/frontend/src/data/communicationGraph.json;
+RUN cp /graal-prophet-utils/output_trainticket/entities.json /graal_mvp/frontend/src/data/contextMap.json
+RUN cp /graal-prophet-utils/output_trainticket/communicationGraph.json /graal_mvp/frontend/src/data/communicationGraph.json
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends npm curl
-RUN curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
-RUN BASH /tmp/nodesource_setup.sh
+# Install npm
+RUN curl -sL https://deb.nodesource.com/setup_20.x -o /tmp/nodesource_setup.sh
+RUN bash /tmp/nodesource_setup.sh
 RUN apt-get install -y nodejs
 
-## Build the visualizer
+# Build the visualizer
 RUN cd /graal_mvp/frontend && npm install
 
-#CMD ["cd", "/graal_mvp/frontend",  "&&", "npm start"]
-#EXPOSE 3000
-
-#RUN wget https://github.com/graalvm/labs-openjdk-11/releases/download/jvmci-22.3-b22/labsjdk-ce-11.0.20+8-jvmci-22.3-b22-linux-amd64.tar.gz
-#RUN tar xf labsjdk-ce-11.0.20+8-jvmci-22.3-b22-linux-amd64.tar.gz
-#ENV JAVA_HOME=/labsjdk-ce-11.0.20-jvmci-22.3-b22
-
-
+# Start the visualizer when the container is started
+ENTRYPOINT cd /graal_mvp/frontend && npm start
+EXPOSE 3000
