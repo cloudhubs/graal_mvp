@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useState, useRef } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import { ViewMode } from "../context/AppContext";
 import { useAppContext } from "../context/AppContext";
+import {Background, Controls, Edge, ReactFlow, useEdgesState, useNodesState} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
+import CustomNode from "./CustomNode";
 
 type Props = {
     search: string;
@@ -22,7 +25,7 @@ const LINK_HIGHLIGHT_COLOR: string = "rgba(255, 0, 252, 1)";
 const LINK_COLOR: string = NODE_COLOR;
 const LINK_PARTICLE_COLOR: string = "rgba(255, 126, 126, 1)";
 const LINK_ARROW_COLOR: string = LINK_HIGHLIGHT_COLOR;
-const BACKGOUND_COLOR: string = "rgb(0,0,0)";
+const BACKGOUND_COLOR: string = "rgb(255,255,255)";
 const LINK_WIDTH = 1.5;
 const PARTICLE_WIDTH = 6;
 const LINK_ARROW_LENGTH = 10;
@@ -47,8 +50,59 @@ const ContextMap: React.FC<Props> = ({
     const [interactionEnabled, setInteractionEnabled] = useState(true);
     const [nodeDragEnabled, setNodeDragEnabled] = useState(true);
 
-    const { setStateVar, selectedSearchValue } = useAppContext();
+    const { setStateVar, selectedSearchValue, selectedSearchSecondValue } = useAppContext();
     const setSelectedSearchValue = (val: string) => setStateVar && setStateVar("selectedSearchValue", val);
+
+    const [nodes, setNodes, onNodesChange] = useNodesState([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+    useEffect(() => {
+        if (contextMap && contextMap.nodes && contextMap.links) {
+            setNodes(convertNodes(contextMap.nodes));
+            setEdges(convertLinks(contextMap.links));
+        }
+    }, [contextMap]);
+
+    const nodeTypes = {
+        customNode: CustomNode,
+    };
+
+    const initialEdges: Edge[] = [{ id: 'e1-2', source: 'Config', target: 'Contacts' }];
+
+    const convertNodes = (nodes) => {
+        const radius = 3000; // Increase the radius to create more space between nodes
+        const phi = Math.PI * (3 - Math.sqrt(5)); // Golden angle in radians
+
+        return nodes.map((node, i) => {
+            const y = 1 - (i / (nodes.length - 1)) * 2; // y goes from 1 to -1
+            const radiusAtY = Math.sqrt(1 - y * y); // radius at y
+            const theta = phi * i; // golden angle increment
+
+            // Convert 3D spherical coordinates to 2D projection
+            const x = radius * Math.cos(theta) * radiusAtY;
+            const yPos = radius * Math.sin(theta) * radiusAtY;
+
+            return {
+                id: node.nodeName,
+                data: { label: node.nodeFullName, fields: node.fields },
+                position: { x, y: yPos }, // Position in 2D
+                type: "customNode",
+            };
+        });
+    };
+
+
+    // Convert the links to React Flow edges
+    const convertLinks = (links) => {
+        return links.map((link) => ({
+            id: `${link.source}-${link.target}`,
+            source: link.source,
+            target: link.target,
+            label: `${link.source} -> ${link.target}`, // Display multiplicity if needed
+            animated: true,
+            type: "default",
+        }));
+    };
 
     // Update search options to include only entities shown in the graph
     const searchOptions = contextMap.nodes.map((node: any) => node.nodeName);
@@ -59,15 +113,24 @@ const ContextMap: React.FC<Props> = ({
             const filteredLinks = contextMap.links.filter((link: any) =>
                 filteredNodes.some((node: any) => node.id === link.source || node.id === link.target)
             );
+            setEdges(convertLinks(filteredLinks))
+            setNodes(convertNodes(filteredNodes));
             setFilteredData({ nodes: filteredNodes, links: filteredLinks });
             // setInteractionEnabled(false); // Disable interaction after filtering
             // setNodeDragEnabled(false); // Disable node dragging after filtering
+        } else if (selectedSearchSecondValue) {
+            const filteredNodes = contextMap.nodes.filter((node: any) => node.nodeName === selectedSearchSecondValue);
+            const filteredLinks = contextMap.links.filter((link: any) =>
+                filteredNodes.some((node: any) => node.id === link.source || node.id === link.target)
+            );
+            setEdges(convertLinks(filteredLinks))
+            setNodes(convertNodes(filteredNodes));
         } else {
+            setEdges(convertLinks(contextMap.links))
+            setNodes(convertNodes(contextMap.nodes));
             setFilteredData(contextMap);
-            setInteractionEnabled(true); // Enable interaction when no filter is applied
-            setNodeDragEnabled(true);
         }
-    }, [selectedSearchValue, contextMap]);
+    }, [selectedSearchValue, selectedSearchSecondValue, contextMap]);
 
     const handleNodeHover = (node: any) => {
         if (!interactionEnabled) return; // Return early if interaction is disabled
@@ -155,66 +218,20 @@ const ContextMap: React.FC<Props> = ({
     };
 
     return (
-        <ForceGraph2D
-            ref={graphRef}
-            graphData={filteredData}
-            enableNodeDrag={nodeDragEnabled} // Control node dragging
-            nodeId={"nodeName"}
-            backgroundColor={BACKGOUND_COLOR}
-            nodeCanvasObject={(node, ctx, globalScale) => {
-                const label = node.nodeName;
-                const fontSize = 12 / globalScale;
-                ctx.font = `${fontSize}px Sans-Serif`;
-                ctx.fillStyle = 'black';
-
-                // Calculate the width and height of the text
-                const textWidth = ctx.measureText(label).width;
-                const textHeight = fontSize * 1.2; // Approximate height
-
-                // Calculate total height for the node label and additional data
-                const totalHeight = textHeight + (node.fields ? node.fields.length * textHeight : 0);
-                const maxWidth = Math.max(textWidth, ...(node.fields ? node.fields.map(field => ctx.measureText(`${field.fieldType} ${field.fieldName}`).width) : []));
-
-                // Draw background rectangle
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'; // Background color
-                ctx.fillRect(node.x - maxWidth / 2 - 2, node.y - textHeight / 2 - 2, maxWidth + 4, totalHeight + 4);
-
-                // Draw text
-                ctx.fillStyle = 'black';
-                ctx.fillText(label, node.x, node.y);
-
-                // Display additional data
-                if (node.fields) {
-                    node.fields.forEach((field, index) => {
-                        const fieldText = `${field.fieldType} ${field.fieldName}`;
-                        ctx.fillText(fieldText, node.x, node.y + (index + 1) * textHeight);
-                    });
-                }
-            }}
-            linkLabel={getLinkLabel}
-            linkDirectionalArrowLength={LINK_ARROW_LENGTH}
-            linkDirectionalArrowRelPos={1}
-            linkDirectionalArrowColor={(link) => LINK_ARROW_COLOR}
-            linkDirectionalParticles={LINK_PARTICLE_AMNT}
-            linkDirectionalParticleWidth={link => (highlightLinks.has(link) || link === clickedLink) ? PARTICLE_WIDTH : 0}
-            linkDirectionalParticleColor={() => LINK_PARTICLE_COLOR}
-            linkWidth={LINK_WIDTH}
-            linkColor={(link) => {
-                if (link === clickedLink || link === selectedLink) {
-                    return LINK_HIGHLIGHT_COLOR;
-                }
-                return LINK_COLOR;
-            }}
-            onNodeDragEnd={(node) => {
-                if (node.x && node.y) {
-                    node.fx = node.x;
-                    node.fy = node.y;
-                }
-            }}
-            onNodeClick={handleNodeClick}
-            onNodeHover={handleNodeHover}
-            onLinkHover={handleLinkHover}
-        />
+        <div style={{width: '100vw', height: '100vh', backgroundColor: "white"}}>
+            <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                nodeTypes={nodeTypes}
+                fitView
+                defaultViewport={{ x: 0, y: 0, zoom: 3 }}
+            >
+                <Background />
+                <Controls />
+            </ReactFlow>
+        </div>
     );
 };
 

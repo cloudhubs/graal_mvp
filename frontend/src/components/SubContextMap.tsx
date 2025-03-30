@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAppContext, ViewMode } from "../context/AppContext";
 import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer';
 import ForceGraph3D from "react-force-graph-3d";
+import ForceGraph2D from "react-force-graph-2d";
 
 
 type Props = {
@@ -36,16 +37,15 @@ const LINK_ARROW_LENGTH = 10;
 const LINK_PARTICLE_AMNT = 2;
 
 const SubContextMap: React.FC<Props> = ({
-    contextMap,
-    search,
-    threshold,
-    viewMode,
-    // graphRef,
-    setInitRotation,
-    highCoupling
-}) => {
+                                            contextMap,
+                                            search,
+                                            threshold,
+                                            viewMode,
+                                            setInitRotation,
+                                            highCoupling
+                                        }) => {
     const graphRef = useRef()
-    const { viewSubContextMap, setStateVar, selectedSearchValue } = useAppContext();
+    const { viewSubContextMap, setStateVar, selectedSearchValue, is3DView = false } = useAppContext();
     const setSubContextNodes = (val: Map<String, Node>) => setStateVar && setStateVar("subContextNodes", val);
     const setViewSubContextMap = (val: boolean) => setStateVar && setStateVar("viewSubContextMap", val);
     const [highlightNodes, setHighlightNodes] = useState<any>(new Set());
@@ -94,12 +94,9 @@ const SubContextMap: React.FC<Props> = ({
     };
 
     useEffect(() => {
-        // let { x, y, z } = graphRef.current.cameraPosition();
         setInitRotation(graphRef.current.camera().quaternion);
         graphRef.current.d3Force('charge').strength((node: any) => { return -20; })
         graphRef.current.d3Force('link').distance((link: any) => { return 85; });
-        // graphRef.current.d3Force('charge').strength((node: any) => { return -220; })
-        // graphRef.current.d3Force('link').distance((link: any) => { return 50; });
 
         const handleCloseBox = () => {
             setClickedLink(null);
@@ -110,25 +107,24 @@ const SubContextMap: React.FC<Props> = ({
         document.addEventListener("closeBox", handleCloseBox);
         return () => {
             document.removeEventListener("closeBox", handleCloseBox);
-            }
+        }
     }, []);
-
 
     const extraRenderers: any = [new CSS3DRenderer()];
 
     const getLinkLabel = (link: any) => {
         const { sourceMultiplicity, targetMultiplicity } = link;
-      
+
         if (sourceMultiplicity && targetMultiplicity) {
-          return `${sourceMultiplicity} to ${targetMultiplicity}`;
+            return `${sourceMultiplicity} to ${targetMultiplicity}`;
         } else if (sourceMultiplicity) {
-          return sourceMultiplicity;
+            return sourceMultiplicity;
         } else if (targetMultiplicity) {
-          return targetMultiplicity;
+            return targetMultiplicity;
         }
         return "";
     };
-    
+
     return (
         <div className="relative h-full w-full">
             {viewSubContextMap && (
@@ -140,129 +136,70 @@ const SubContextMap: React.FC<Props> = ({
                                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"/>
                                 <g id="SVGRepo_iconCarrier"> <path d="M16.19 2H7.81C4.17 2 2 4.17 2 7.81V16.18C2 19.83 4.17 22 7.81 22H16.18C19.82 22 21.99 19.83 21.99 16.19V7.81C22 4.17 19.83 2 16.19 2ZM13.92 16.13H9C8.59 16.13 8.25 15.79 8.25 15.38C8.25 14.97 8.59 14.63 9 14.63H13.92C15.2 14.63 16.25 13.59 16.25 12.3C16.25 11.01 15.21 9.97 13.92 9.97H8.85L9.11 10.23C9.4 10.53 9.4 11 9.1 11.3C8.95 11.45 8.76 11.52 8.57 11.52C8.38 11.52 8.19 11.45 8.04 11.3L6.47 9.72C6.18 9.43 6.18 8.95 6.47 8.66L8.04 7.09C8.33 6.8 8.81 6.8 9.1 7.09C9.39 7.38 9.39 7.86 9.1 8.15L8.77 8.48H13.92C16.03 8.48 17.75 10.2 17.75 12.31C17.75 14.42 16.03 16.13 13.92 16.13Z" fill="#292D32"/> </g>
                             </svg>
-                        </button>    
-                       
+                        </button>
+
                         <div style={{ backgroundColor: PANEL_BACKGROUND_COLOR, zIndex: 10, position: 'absolute', top: '80px', left: '20px', color: 'white', border: '1px solid grey', padding: '10px', borderRadius: '5px' }}>
-                        <span style={{ zIndex: 30, fontSize: '16px', display: 'block', fontWeight: 700 }}>Microservice(s) selected:</span>
-                        {contextMap.nodes.filter((node, index, array) => array.findIndex(n => n.msName === node.msName) === index).map((node, index) => {
-                            return (
-                            <span 
-                                key= {index} 
-                                style={{ zIndex: 30, fontSize: '12px', marginRight: '10px' }}>
+                            <span style={{ zIndex: 30, fontSize: '16px', display: 'block', fontWeight: 700 }}>Microservice(s) selected:</span>
+                            {contextMap.nodes.filter((node, index, array) => array.findIndex(n => n.msName === node.msName) === index).map((node, index) => {
+                                return (
+                                    <span
+                                        key= {index}
+                                        style={{ zIndex: 30, fontSize: '12px', marginRight: '10px' }}>
                                 {node.msName}
-                                {(index + 1) % 2 === 0 ? <br /> : null}
+                                        {(index + 1) % 2 === 0 ? <br /> : null}
                             </span>
-                            )
-                        })}
-                        <span style={{ zIndex: 30, fontSize: '16px', display: 'block', marginTop: '10px', fontWeight: 700 }}>Entity List: </span>
-                        {contextMap.nodes.map((node, index) => {
-                            return (
-                            <span 
-                                key= {index} 
-                                style={{ zIndex: 30, fontSize: '12px', marginRight: '10px' }}>
+                                )
+                            })}
+                            <span style={{ zIndex: 30, fontSize: '16px', display: 'block', marginTop: '10px', fontWeight: 700 }}>Entity List: </span>
+                            {contextMap.nodes.map((node, index) => {
+                                return (
+                                    <span
+                                        key= {index}
+                                        style={{ zIndex: 30, fontSize: '12px', marginRight: '10px' }}>
                                 {node.nodeName}
-                                {(index + 1) % 2 === 0 ? <br /> : null}
+                                        {(index + 1) % 2 === 0 ? <br /> : null}
                             </span>
-                            )
-                        })}
+                                )
+                            })}
                         </div>
-                    </div>   
-                    <ForceGraph3D
-                        extraRenderers={extraRenderers}
-                        ref={graphRef}
-                        graphData={contextMap}
-                        nodeId={"nodeName"}
-                        backgroundColor={BACKGOUND_COLOR}
-                        nodeThreeObject={(node: any) => {
-
-                            //trying to filter beforehand (old code)
-                            // if (badNodes.some(badNode => badNode.nodeName === node.nodeName)) {
-                            //     return null; 
-                            // }
-
-                            const el = document.createElement('div');
-
-                            // Node name in larger text
-                            const nameEl = document.createElement('div');
-                            nameEl.style.fontWeight = 'bold';
-                            nameEl.style.fontSize = '16px';
-                            nameEl.style.textAlign = 'center';
-                            nameEl.style.display = 'block';
-                            nameEl.style.border = '2px solid grey';
-                            nameEl.style.color = 'black';
-                            nameEl.style.backgroundColor = 'rgba(183,201,226)';
-                            nameEl.innerText = node.nodeName;
-                            el.appendChild(nameEl);
-
-                            let heightValue = 20; // Accounting for 20 bc the name takes up 16px already
-                            
-                            if(node && node.fields) {
-                                //only do this if the nodes have fields
-                                node.fields.forEach((field) => {
-                                    const fieldEl = document.createElement('div');
-                                    fieldEl.style.fontSize = '12px';
-                                    fieldEl.style.color = 'black';
-                                    fieldEl.innerText = `+${field.fieldType} ${field.fieldName}`;
-                                    el.appendChild(fieldEl);
-                                    heightValue += 30;
-                                });
-                            }
-
-
-                            const heightPixels = heightValue + 'px';
-                            // Styling for the HTML element
-                            el.style.width = '200px';
-                            el.style.height = heightPixels;
-                            el.style.backgroundColor = 'rgba(183,201,226)';
-
-                            // if (
-                            //     selectedSearchValue &&
-                            //     selectedSearchValue.length &&
-                            //     node.nodeName === selectedSearchValue && selectedSearchValue !== clickedNode?.nodeName) {
-                            //     handleNodeClick(node)
-                            // }
-                            const cssObject = new CSS3DObject(el);
-                            cssObject.position.set(0,0,0);
-                            cssObject.scale.set(0.1, 0.1, 0.1);
-
-                            // FOR CAMERA LOOKING
-                            // if (graphRef.current.camera().position) {
-                            //     cssObject.lookAt(graphRef.current.camera().position)
-                            // }
-                            
-                            
-                            // cssObject.element.style.zIndex = '1';
-
-                            return cssObject;
-                        }}
-                        nodeThreeObjectExtend={true}
-                        linkLabel={getLinkLabel}
-                        
-                        linkDirectionalArrowLength={LINK_ARROW_LENGTH}
-                        linkDirectionalArrowRelPos={1}
-                        linkDirectionalArrowColor={(link) => LINK_ARROW_COLOR}
-
-                        linkDirectionalParticles={LINK_PARTICLE_AMNT}
-                        linkDirectionalParticleWidth={link => (highlightLinks.has(link) || link === clickedLink) ? PARTICLE_WIDTH : 0}
-                        linkDirectionalParticleColor={() => LINK_PARTICLE_COLOR}
-
-                        linkWidth={LINK_WIDTH}
-                        linkColor={(link) => {
-                            if (link === clickedLink || link === selectedLink) {
-                                return LINK_HIGHLIGHT_COLOR
-                            }
-                            return LINK_COLOR;
-                        }}
-                        onNodeDragEnd={(node) => {
-                            if (node.x && node.y && node.z) {
-                                node.fx = node.x;
-                                node.fy = node.y;
-                                node.fz = node.z;
-                            }
-                        }}
-                        onNodeHover={handleNodeHover}
-                        onLinkHover={handleLinkHover}
-                    />
+                    </div>
+                    {
+                        <ForceGraph2D
+                            ref={graphRef}
+                            graphData={contextMap}
+                            nodeId={"nodeName"}
+                            backgroundColor={BACKGOUND_COLOR}
+                            nodeCanvasObject={(node, ctx, globalScale) => {
+                                const label = node.nodeName;
+                                const fontSize = 12 / globalScale;
+                                ctx.font = `${fontSize}px Sans-Serif`;
+                                ctx.fillStyle = 'black';
+                                ctx.fillText(label, node.x, node.y);
+                            }}
+                            linkLabel={getLinkLabel}
+                            linkDirectionalArrowLength={LINK_ARROW_LENGTH}
+                            linkDirectionalArrowRelPos={1}
+                            linkDirectionalArrowColor={(link) => LINK_ARROW_COLOR}
+                            linkDirectionalParticles={LINK_PARTICLE_AMNT}
+                            linkDirectionalParticleWidth={link => (highlightLinks.has(link) || link === clickedLink) ? PARTICLE_WIDTH : 0}
+                            linkDirectionalParticleColor={() => LINK_PARTICLE_COLOR}
+                            linkWidth={LINK_WIDTH}
+                            linkColor={(link) => {
+                                if (link === clickedLink || link === selectedLink) {
+                                    return LINK_HIGHLIGHT_COLOR
+                                }
+                                return LINK_COLOR;
+                            }}
+                            onNodeDragEnd={(node) => {
+                                if (node.x && node.y) {
+                                    node.fx = node.x;
+                                    node.fy = node.y;
+                                }
+                            }}
+                            onNodeHover={handleNodeHover}
+                            onLinkHover={handleLinkHover}
+                        />
+                    }
                 </div>
             )}
         </div>

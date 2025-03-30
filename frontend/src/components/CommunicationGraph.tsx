@@ -28,6 +28,8 @@ const NODE_HOVER_COLOR: string = "rgba(31, 237, 230, 1)";
 export const NODE_A_COLOR: string = "rgba(72, 205, 82, 1)";
 export const NODE_B_COLOR: string = "rgba(238, 155, 80, 1)";
 const LINK_HIGHLIGHT_COLOR: string = "rgba(255, 0, 252, 1)";
+const LINK_HIGHLIGHT_COLOR_WS: string = "rgb(17,255,0)"; // Red color for WS links
+const LINK_HIGHLIGHT_COLOR_GRAPHQL: string = "rgb(255,124,0)"; // Red color for WS links
 const LINK_COMPARISON_CHANGED: string = "rgba(102, 0, 255, 1)";
 const LINK_COLOR: string = NODE_COLOR;
 const LINK_PARTICLE_COLOR: string = "rgba(255, 126, 126, 1)";
@@ -133,7 +135,7 @@ const CommunicationGraph: React.FC<Props> = ({
 
         }, [subContextNodes]
     );
-   
+
     const handleNodeClick = useCallback(
         (node: any, event?: any) => {
 
@@ -222,7 +224,7 @@ const CommunicationGraph: React.FC<Props> = ({
         document.addEventListener("closeBox", handleCloseBox);
         return () => document.removeEventListener("closeBox", handleCloseBox);
     }, []);
-    
+
     return (
         <ForceGraph3D
             ref={graphRef}
@@ -266,11 +268,22 @@ const CommunicationGraph: React.FC<Props> = ({
             linkColor={(link) => {
                 let linkCol = LINK_COLOR;
                 if ("didChange" in link && link.didChange === true){
-                   linkCol = LINK_COMPARISON_CHANGED;
+                    linkCol = LINK_COMPARISON_CHANGED;
+                }
+
+
+                if (link === clickedLink || link === selectedLink) {
+                    linkCol = LINK_HIGHLIGHT_COLOR;
+                    if (link.requests[0]?.type === "WS") {
+                        linkCol = LINK_HIGHLIGHT_COLOR_WS;
+                    }
                 }
 
                 if (link === clickedLink || link === selectedLink) {
-                    linkCol = LINK_HIGHLIGHT_COLOR
+                    linkCol = LINK_HIGHLIGHT_COLOR;
+                    if (link.requests[0]?.type === "QUERY" || link.requests[0]?.type === "MUTATION") {
+                        linkCol = LINK_HIGHLIGHT_COLOR_GRAPHQL;
+                    }
                 }
                 return linkCol;
             }}
