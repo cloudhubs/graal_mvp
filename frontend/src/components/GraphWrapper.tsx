@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import CommunicationGraph from "./CommunicationGraph";
 import { ViewMode, useAppContext } from "../context/AppContext";
-import ContextMap from "./ContextMapNew";
+import ContextMap from "./ContextMap2D";
 import SubContextMap from "./SubContextMap";
 
 type Props = {
@@ -14,7 +14,7 @@ const VisualizationOptions: React.FC<Props> = ({
     contextRef,
 }) => {
 
-    const { 
+    const {
         subContextNodes,
         contextMap,
         search,
@@ -24,7 +24,7 @@ const VisualizationOptions: React.FC<Props> = ({
         viewSubContextMap,
         setStateVar
     } = useAppContext();
-    
+
     const setInitRotation = (rot: any) => setStateVar && setStateVar("initRotation", rot);
 
     const [filteredContextMap, setFilteredContextMap] = useState({})
@@ -49,7 +49,7 @@ const VisualizationOptions: React.FC<Props> = ({
 
     return (
         <div>
-            {viewSubContextMap === true && 
+            {viewSubContextMap === true &&
                 <SubContextMap
                     contextMap={filteredContextMap}
                     search={search}

@@ -266,23 +266,29 @@ const CommunicationGraph: React.FC<Props> = ({
 
             linkWidth={LINK_WIDTH}
             linkColor={(link) => {
-                let linkCol = LINK_COLOR;
-                if ("didChange" in link && link.didChange === true){
+                let linkCol = LINK_HIGHLIGHT_COLOR;
+
+                // Priority for changed links
+                if ("didChange" in link && link.didChange === true) {
                     linkCol = LINK_COMPARISON_CHANGED;
                 }
 
+                // Color based on request type even when not highlighted
+                const reqType = link.requests?.[0]?.type;
+                if (reqType === "WS") {
+                    linkCol = LINK_HIGHLIGHT_COLOR_WS;
+                } else if (reqType === "QUERY" || reqType === "MUTATION") {
+                    linkCol = LINK_HIGHLIGHT_COLOR_GRAPHQL;
+                }
 
+                // Override with highlight color when selected/hovered
                 if (link === clickedLink || link === selectedLink) {
                     linkCol = LINK_HIGHLIGHT_COLOR;
-                    if (link.requests[0]?.type === "WS") {
-                        linkCol = LINK_HIGHLIGHT_COLOR_WS;
-                    } else if (link.requests[0]?.type === "QUERY" || link.requests[0]?.type === "MUTATION") {
-                        linkCol = LINK_HIGHLIGHT_COLOR_GRAPHQL;
-                    }
                 }
 
                 return linkCol;
             }}
+
             onNodeDragEnd={(node) => {
                 if (node.x && node.y && node.z) {
                     node.fx = node.x;
