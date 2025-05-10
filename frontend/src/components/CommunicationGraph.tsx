@@ -286,6 +286,15 @@ const CommunicationGraph: React.FC<Props> = ({
                     linkCol = LINK_HIGHLIGHT_COLOR;
                 }
 
+                if (link === clickedLink || link === selectedLink) {
+                    linkCol = LINK_HIGHLIGHT_COLOR;
+                    if (link.requests[0]?.type === "WS") {
+                        linkCol = LINK_HIGHLIGHT_COLOR_WS;
+                    } else if (link.requests[0]?.type === "QUERY" || link.requests[0]?.type === "MUTATION") {
+                        linkCol = LINK_HIGHLIGHT_COLOR_GRAPHQL;
+                    }
+                }
+
                 return linkCol;
             }}
 

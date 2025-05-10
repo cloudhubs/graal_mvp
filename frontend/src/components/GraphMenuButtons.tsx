@@ -1,5 +1,6 @@
 import { saveAs } from "file-saver";
 import React, { useState, useEffect, useRef } from "react";
+import { toBlob } from "html-to-image";
 import { handleComparison, initCoords } from "../utils/GraphFunctions";
 import GraphButton from "./GraphButton"
 import { NODE_A_COLOR, NODE_B_COLOR } from "./CommunicationGraph";
@@ -32,7 +33,7 @@ const GraphMenuButtons: React.FC<Props> = ({
         B: null,
         B_Name: null
     }
-    
+
     const [versions, setVersions] = useState(versionObj);
     const [isCompareOpen, setIsCompareOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +58,7 @@ const GraphMenuButtons: React.FC<Props> = ({
 
     function exportToJsonFile(jsonData: any) {
         let dataStr = JSON.stringify(
-            Object.assign({}, jsonData, graphRef.current.cameraPosition()),
+            Object.assign({}, jsonData, graphRef.current?.cameraPosition()),
             replacer
         );
 
@@ -93,7 +94,7 @@ const GraphMenuButtons: React.FC<Props> = ({
                 let content = readerEvent.target.result; // this is the content!
                 let parsedData = JSON.parse(content);
                 setGraphData(parsedData);
-                graphRef.current.cameraPosition(
+                graphRef.current?.cameraPosition(
                     { x: parsedData.x, y: parsedData.y, z: parsedData.z }, // new position
                     { x: 0, y: 0, z: 0 }, //parsedData.lookAt, // lookAt ({ x, y, z })
                     0 // ms transition duration
@@ -110,26 +111,42 @@ const GraphMenuButtons: React.FC<Props> = ({
     function forceReset() {
         graphRef.current.refresh();
         console.log(graphRef);
-        graphRef.current.cameraPosition(
+        graphRef.current?.cameraPosition(
             initCoords,
             { x: 0, y: 0, z: 0 }, // lookAt ({ x, y, z })
             2000 // ms transition duration
         );
-        
+
     }
 
     function screenshotGraph() {
         const now = new Date();
-        window.requestAnimationFrame(() => {
-            window.cancelAnimationFrame(0);
-            graphRef.current.renderer().domElement.toBlob(function (blob: any) {
-                saveAs(
-                    blob,
-                    `3d_Visualizer_${now.toLocaleDateString()}-${numScreenshots}}`
-                );
+        const graphInstance = graphRef.current;
+
+        if (!graphInstance) return;
+
+        if (typeof graphInstance.renderer === "function") {
+            // ForceGraph3D or ForceGraph2D
+            const domElement = graphInstance.renderer().domElement;
+            domElement.toBlob((blob: Blob | null) => {
+                if (blob) {
+                    saveAs(blob, `3D_Visualizer_${now.toLocaleDateString()}-${numScreenshots}.png`);
+                    setNumScreenshots(numScreenshots + 1);
+                }
             });
-            setNumScreenshots(++numScreenshots);
-        });
+        } else if (graphInstance instanceof HTMLElement) {
+            // ReactFlow or other DOM-based graph
+            toBlob(graphInstance)
+                .then((blob) => {
+                    if (blob) {
+                        saveAs(blob, `2D_Visualizer_${now.toLocaleDateString()}-${numScreenshots}.png`);
+                        setNumScreenshots(numScreenshots + 1);
+                    }
+                })
+                .catch((err) => {
+                    console.error("Screenshot capture failed: ", err);
+                });
+        }
     }
 
     function handleCompareClick() {
@@ -172,7 +189,7 @@ const GraphMenuButtons: React.FC<Props> = ({
 
     return (
         <div className="flex flex-col gap-2 w-full h-fit">
-            {viewMode === ViewMode.CommGraph && 
+            {viewMode === ViewMode.CommGraph &&
                 <ToggleSwitch isChecked= {showCodeCoverage} handleClick = {handleCCToggleClick} isDisabled = {!codeCoveragePossible} text={codeCoveragePossible ? "Code Cov." : "Code Cov. Disabled"}/> //codeCoveragePossible is NOT-ed because if its true, disabled should be false, vice-verse
             }
             <GraphButton onClick={importGraph}>Import</GraphButton>

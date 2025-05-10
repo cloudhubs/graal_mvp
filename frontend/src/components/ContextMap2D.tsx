@@ -17,6 +17,7 @@ type Props = {
 
 const ContextMap: React.FC<Props> = ({
                                          contextMap,
+                                         graphRef
                                      }) => {
     const [filteredData, setFilteredData] = useState(contextMap);
 
@@ -99,6 +100,7 @@ const ContextMap: React.FC<Props> = ({
     return (
         <div style={{width: '100vw', height: '100vh', backgroundColor: "white"}}>
             <ReactFlow
+                ref={graphRef}
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
