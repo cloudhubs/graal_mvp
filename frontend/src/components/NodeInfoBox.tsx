@@ -1,3 +1,7 @@
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
 import React from "react";
 import {useInfoBox} from "../hooks/useInfoBox";
 import {useInfoBoxLink} from "../hooks/useInfoBoxLink";

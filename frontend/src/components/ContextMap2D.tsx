@@ -1,3 +1,7 @@
+/**
+ * Authors: Vsevolod Pokhvalenko
+ */
+
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { ViewMode } from "../context/AppContext";
 import { useAppContext } from "../context/AppContext";

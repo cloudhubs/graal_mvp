@@ -1,3 +1,7 @@
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import { ViewMode } from "../context/AppContext";

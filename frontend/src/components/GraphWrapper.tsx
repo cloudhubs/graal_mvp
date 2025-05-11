@@ -1,3 +1,7 @@
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
 import React, { useEffect, useState } from "react";
 import CommunicationGraph from "./CommunicationGraph";
 import { ViewMode, useAppContext } from "../context/AppContext";

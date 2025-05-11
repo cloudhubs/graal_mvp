@@ -1,3 +1,7 @@
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
 import { saveAs } from "file-saver";
 import React, { useState, useEffect, useRef } from "react";
 import { toBlob } from "html-to-image";

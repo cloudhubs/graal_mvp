@@ -1,5 +1,8 @@
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
 import React from 'react';
-import { useCallback } from 'react';
 import { Handle, Position } from '@xyflow/react';
 
 const CustomNode = ({ data }) => {

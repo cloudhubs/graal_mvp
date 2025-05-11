@@ -1,3 +1,7 @@
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
 import React, { useEffect, useState, useRef } from "react";
 import { useAppContext, ViewMode } from "../context/AppContext";
 import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer';

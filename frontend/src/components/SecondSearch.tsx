@@ -1,3 +1,7 @@
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
 import React, {useState, useRef} from "react"
 import {useAppContext} from "../context/AppContext";
 

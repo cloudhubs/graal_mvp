@@ -1,3 +1,7 @@
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
 import React, { useState } from "react";
 import SearchableDropdown from "./Search";
 import { SearchableDropdown as SecondSeach} from "./SecondSearch";
