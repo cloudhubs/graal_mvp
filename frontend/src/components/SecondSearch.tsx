@@ -46,7 +46,7 @@ export const SearchableDropdown = ({
 
     const filterOpt = (options) => {
         const op = options.filter(
-            (option) => option[label].toLowerCase().indexOf(searchLocal.toLowerCase()) > -1
+            (option) => option[label]?.toLowerCase().indexOf(searchLocal.toLowerCase()) > -1
         )
         return op
     }
