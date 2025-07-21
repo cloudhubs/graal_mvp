@@ -2,7 +2,7 @@
  * Authors: Vsevolod Pokhvalenko
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { ViewMode } from "../context/AppContext";
 import { useAppContext } from "../context/AppContext";
 import {Background, Controls, Edge, ReactFlow, useEdgesState, useNodesState} from '@xyflow/react';
@@ -71,7 +71,7 @@ const ContextMap: React.FC<Props> = ({
             source: link.source,
             target: link.target,
             label: `${link.source} -> ${link.target}`, // Display multiplicity if needed
-            animated: true,
+            animated: false,
             type: "default",
         }));
     };
@@ -100,11 +100,9 @@ const ContextMap: React.FC<Props> = ({
             setFilteredData(contextMap);
         }
     }, [selectedSearchValue, selectedSearchSecondValue, contextMap]);
-
     return (
-        <div style={{width: '100vw', height: '100vh', backgroundColor: "white"}}>
+        <div ref={graphRef} style={{width: '100vw', height: '100vh', backgroundColor: "white"}}>
             <ReactFlow
-                ref={graphRef}
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}

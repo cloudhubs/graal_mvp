@@ -24,6 +24,9 @@ interface AppContextType {
   showCodeCoverage: boolean,
   codeCoveragePossible: boolean,
   is3DView: boolean;
+  getNodes: () => any[];
+  getEdges: () => any[];
+  reactFlowInstance: any;
   setStateVar?: (field: keyof AppContextType, value: any) => void;
 }
 
@@ -46,6 +49,9 @@ export function AppPageContext({ children }: any) {
     codeCoveragePossible: false,
     showCodeCoverage: false,
     is3DView: true,
+    getNodes: () => [],
+    getEdges: () => [],
+    reactFlowInstance: null,
   });
   const setStateVar = (field: keyof AppContextType, value: any) => {
     setState((prevState) => ({

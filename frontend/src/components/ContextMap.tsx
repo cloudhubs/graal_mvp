@@ -18,10 +18,6 @@ type Props = {
 };
 
 const NODE_COLOR: string = "rgba(224, 219, 209, 1)";
-const NODE_TEXT_COLOR: string = "rgba(255, 196, 84, 1)";
-const NODE_HOVER_COLOR: string = "rgba(31, 237, 230, 1)";
-const NODE_A_COLOR: string = "rgba(72, 205, 82, 1)";
-const NODE_B_COLOR: string = "rgba(238, 155, 80, 1)";
 const LINK_HIGHLIGHT_COLOR: string = "rgba(255, 0, 252, 1)";
 const LINK_COLOR: string = NODE_COLOR;
 const LINK_PARTICLE_COLOR: string = "rgba(255, 126, 126, 1)";

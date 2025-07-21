@@ -4,7 +4,7 @@
 
 import { saveAs } from "file-saver";
 import React, { useState, useEffect, useRef } from "react";
-import { toBlob } from "html-to-image";
+import { toPng } from 'html-to-image';
 import { handleComparison, initCoords } from "../utils/GraphFunctions";
 import GraphButton from "./GraphButton"
 import { NODE_A_COLOR, NODE_B_COLOR } from "./CommunicationGraph";
@@ -123,32 +123,58 @@ const GraphMenuButtons: React.FC<Props> = ({
 
     }
 
-    function screenshotGraph() {
+    async function screenshotGraph() {
         const now = new Date();
         const graphInstance = graphRef.current;
 
         if (!graphInstance) return;
 
-        if (typeof graphInstance.renderer === "function") {
-            // ForceGraph3D or ForceGraph2D
-            const domElement = graphInstance.renderer().domElement;
-            domElement.toBlob((blob: Blob | null) => {
+        // Check if it's a ForceGraph3D instance
+        if (typeof graphInstance.renderer === "function" && graphInstance.renderer().domElement) {
+            const canvas = graphInstance.renderer().domElement;
+
+            // Upscale for higher quality
+            const originalWidth = canvas.width;
+            const originalHeight = canvas.height;
+            const scaleFactor = 2;
+
+            canvas.width = originalWidth * scaleFactor;
+            canvas.height = originalHeight * scaleFactor;
+            graphInstance.renderer().setSize(canvas.width, canvas.height);
+            graphInstance.camera().updateProjectionMatrix();
+            graphInstance.renderer().render(graphInstance.scene(), graphInstance.camera());
+
+            // Fill with white background
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            canvas.toBlob((blob) => {
                 if (blob) {
                     saveAs(blob, `3D_Visualizer_${now.toLocaleDateString()}-${numScreenshots}.png`);
                     setNumScreenshots(numScreenshots + 1);
                 }
+
+                // Reset
+                canvas.width = originalWidth;
+                canvas.height = originalHeight;
+                graphInstance.renderer().setSize(originalWidth, originalHeight);
+                graphInstance.camera().updateProjectionMatrix();
             });
+
         } else if (graphInstance instanceof HTMLElement) {
-            // ReactFlow or other DOM-based graph
-            toBlob(graphInstance)
-                .then((blob) => {
-                    if (blob) {
-                        saveAs(blob, `2D_Visualizer_${now.toLocaleDateString()}-${numScreenshots}.png`);
-                        setNumScreenshots(numScreenshots + 1);
-                    }
+            toPng(graphInstance, { backgroundColor: '#ffffff' })
+                .then((dataUrl) => {
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = `2D_Visualizer_${now.toLocaleDateString()}.png`;
+                    a.click();
                 })
                 .catch((err) => {
-                    console.error("Screenshot capture failed: ", err);
+                    console.error('Failed to capture graph:', err);
                 });
         }
     }
