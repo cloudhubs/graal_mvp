@@ -129,11 +129,11 @@ const GraphMenuButtons: React.FC<Props> = ({
 
         if (!graphInstance) return;
 
-        // Check if it's a ForceGraph3D instance
+        // Check if it's a ForceGraph3D instance for 3D graph capture
         if (typeof graphInstance.renderer === "function" && graphInstance.renderer().domElement) {
             const canvas = graphInstance.renderer().domElement;
 
-            // Upscale for higher quality
+            // Upscale for higher quality screenshot
             const originalWidth = canvas.width;
             const originalHeight = canvas.height;
             const scaleFactor = 2;
@@ -144,7 +144,7 @@ const GraphMenuButtons: React.FC<Props> = ({
             graphInstance.camera().updateProjectionMatrix();
             graphInstance.renderer().render(graphInstance.scene(), graphInstance.camera());
 
-            // Fill with white background
+            // Fill with a white background
             const ctx = canvas.getContext('2d');
             if (ctx) {
                 ctx.globalCompositeOperation = 'destination-over';
@@ -152,13 +152,14 @@ const GraphMenuButtons: React.FC<Props> = ({
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
 
+            // Convert canvas to a blob and trigger download
             canvas.toBlob((blob) => {
                 if (blob) {
                     saveAs(blob, `3D_Visualizer_${now.toLocaleDateString()}-${numScreenshots}.png`);
                     setNumScreenshots(numScreenshots + 1);
                 }
 
-                // Reset
+                // Reset canvas dimensions to original size
                 canvas.width = originalWidth;
                 canvas.height = originalHeight;
                 graphInstance.renderer().setSize(originalWidth, originalHeight);
@@ -166,8 +167,10 @@ const GraphMenuButtons: React.FC<Props> = ({
             });
 
         } else if (graphInstance instanceof HTMLElement) {
+            // For 2D graphs, we use toPng to capture the graph
             toPng(graphInstance, { backgroundColor: '#ffffff' })
                 .then((dataUrl) => {
+                    // Create a link and trigger the download of the captured image
                     const a = document.createElement('a');
                     a.href = dataUrl;
                     a.download = `2D_Visualizer_${now.toLocaleDateString()}.png`;
