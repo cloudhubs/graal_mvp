@@ -180,7 +180,7 @@ const getNodeOpacity = (node: any, search: any): number => {
     if (search === "") {
         return 0.75;
     }
-    if (node.nodeName.toLowerCase().includes(search.toLowerCase())) {
+    if (node.nodeName?.toLowerCase().includes(search?.toLowerCase())) {
         return 0.8;
     } else {
         return 0.1;
@@ -199,7 +199,7 @@ function getSpriteColor(
     highCoupling: any,
     antipattern: any
 ) {
-    if (!node.nodeName.toLowerCase().includes(search.toLowerCase())) {
+    if (!node.nodeName?.toLowerCase().includes(search?.toLowerCase())) {
         return "rgba(255,255,255,0)";
     }
     return getColor(
@@ -235,8 +235,8 @@ function getLinkOpacity(link: any, search: any, threed: any) {
         return 0.8;
     }
     if (
-        link.source.nodeName.toLowerCase().includes(search.toLowerCase()) ||
-        link.target.nodeName.toLowerCase().includes(search.toLowerCase())
+        link.source.nodeName?.toLowerCase().includes(search?.toLowerCase()) ||
+        link.target.nodeName?.toLowerCase().includes(search?.toLowerCase())
     ) {
         if (threed) {
             return 0.9;

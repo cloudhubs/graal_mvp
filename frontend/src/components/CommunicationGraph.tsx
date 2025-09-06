@@ -1,4 +1,8 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
+import React, { useCallback, useEffect, useState } from "react";
 import ForceGraph3D from "react-force-graph-3d";
 import { ViewMode } from "../context/AppContext";
 import * as THREE from "three";
@@ -14,25 +18,20 @@ type Props = {
     viewMode: ViewMode;
 };
 //CONSTANTS FOR GRAPH
-// const NODE_COLOR: string = "rgba(224, 219, 209, 1)";
 const NODE_COLOR: string = "rgba(110, 110, 110, 1)";
 
-// const NODE_TEXT_COLOR: string = "rgba(255, 196, 84, 1)";
 const NODE_TEXT_COLOR: string = "rgba(0,0,0, 1)";
 const NODE_TEXT_BG_COLOR: string = "rgba(255, 255, 255,0)";
-
-// const NODE_TEXT_BG_COLOR: string = "rgba(0,0,0,1)";
-// const NODE_TEXT_BG_COLOR: string = "rgba(255, 255, 255,1)";
 
 const NODE_HOVER_COLOR: string = "rgba(31, 237, 230, 1)";
 export const NODE_A_COLOR: string = "rgba(72, 205, 82, 1)";
 export const NODE_B_COLOR: string = "rgba(238, 155, 80, 1)";
 const LINK_HIGHLIGHT_COLOR: string = "rgba(255, 0, 252, 1)";
+const LINK_HIGHLIGHT_COLOR_WS: string = "rgb(17,255,0)"; // Red color for WS links
+const LINK_HIGHLIGHT_COLOR_GRAPHQL: string = "rgb(255,124,0)"; // Red color for WS links
 const LINK_COMPARISON_CHANGED: string = "rgba(102, 0, 255, 1)";
-const LINK_COLOR: string = NODE_COLOR;
 const LINK_PARTICLE_COLOR: string = "rgba(255, 126, 126, 1)";
 const LINK_ARROW_COLOR: string = LINK_HIGHLIGHT_COLOR;
-// const BACKGOUND_COLOR: string = "rgba(20, 20, 20, 1)";
 const BACKGOUND_COLOR: string = "rgba(255,255,255, 1)";
 const LINK_WIDTH = 5;
 const PARTICLE_WIDTH = 6;
@@ -133,7 +132,7 @@ const CommunicationGraph: React.FC<Props> = ({
 
         }, [subContextNodes]
     );
-   
+
     const handleNodeClick = useCallback(
         (node: any, event?: any) => {
 
@@ -222,7 +221,7 @@ const CommunicationGraph: React.FC<Props> = ({
         document.addEventListener("closeBox", handleCloseBox);
         return () => document.removeEventListener("closeBox", handleCloseBox);
     }, []);
-    
+
     return (
         <ForceGraph3D
             ref={graphRef}
@@ -264,16 +263,38 @@ const CommunicationGraph: React.FC<Props> = ({
 
             linkWidth={LINK_WIDTH}
             linkColor={(link) => {
-                let linkCol = LINK_COLOR;
-                if ("didChange" in link && link.didChange === true){
-                   linkCol = LINK_COMPARISON_CHANGED;
+                let linkCol = LINK_HIGHLIGHT_COLOR;
+
+                // Priority for changed links
+                if ("didChange" in link && link.didChange === true) {
+                    linkCol = LINK_COMPARISON_CHANGED;
+                }
+
+                // Color based on request type even when not highlighted
+                const reqType = link.requests?.[0]?.type;
+                if (reqType === "WS") {
+                    linkCol = LINK_HIGHLIGHT_COLOR_WS;
+                } else if (reqType === "QUERY" || reqType === "MUTATION") {
+                    linkCol = LINK_HIGHLIGHT_COLOR_GRAPHQL;
+                }
+
+                // Override with highlight color when selected/hovered
+                if (link === clickedLink || link === selectedLink) {
+                    linkCol = LINK_HIGHLIGHT_COLOR;
                 }
 
                 if (link === clickedLink || link === selectedLink) {
-                    linkCol = LINK_HIGHLIGHT_COLOR
+                    linkCol = LINK_HIGHLIGHT_COLOR;
+                    if (link.requests[0]?.type === "WS") {
+                        linkCol = LINK_HIGHLIGHT_COLOR_WS;
+                    } else if (link.requests[0]?.type === "QUERY" || link.requests[0]?.type === "MUTATION") {
+                        linkCol = LINK_HIGHLIGHT_COLOR_GRAPHQL;
+                    }
                 }
+
                 return linkCol;
             }}
+
             onNodeDragEnd={(node) => {
                 if (node.x && node.y && node.z) {
                     node.fx = node.x;

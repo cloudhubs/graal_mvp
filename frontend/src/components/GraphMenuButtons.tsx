@@ -1,5 +1,10 @@
+/**
+ * Authors: Vsevolod Pokhvalenko, and the MicroGraal Development Team
+ */
+
 import { saveAs } from "file-saver";
 import React, { useState, useEffect, useRef } from "react";
+import { toPng } from 'html-to-image';
 import { handleComparison, initCoords } from "../utils/GraphFunctions";
 import GraphButton from "./GraphButton"
 import { NODE_A_COLOR, NODE_B_COLOR } from "./CommunicationGraph";
@@ -32,7 +37,7 @@ const GraphMenuButtons: React.FC<Props> = ({
         B: null,
         B_Name: null
     }
-    
+
     const [versions, setVersions] = useState(versionObj);
     const [isCompareOpen, setIsCompareOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +62,7 @@ const GraphMenuButtons: React.FC<Props> = ({
 
     function exportToJsonFile(jsonData: any) {
         let dataStr = JSON.stringify(
-            Object.assign({}, jsonData, graphRef.current.cameraPosition()),
+            Object.assign({}, jsonData, graphRef.current?.cameraPosition()),
             replacer
         );
 
@@ -93,7 +98,7 @@ const GraphMenuButtons: React.FC<Props> = ({
                 let content = readerEvent.target.result; // this is the content!
                 let parsedData = JSON.parse(content);
                 setGraphData(parsedData);
-                graphRef.current.cameraPosition(
+                graphRef.current?.cameraPosition(
                     { x: parsedData.x, y: parsedData.y, z: parsedData.z }, // new position
                     { x: 0, y: 0, z: 0 }, //parsedData.lookAt, // lookAt ({ x, y, z })
                     0 // ms transition duration
@@ -110,26 +115,71 @@ const GraphMenuButtons: React.FC<Props> = ({
     function forceReset() {
         graphRef.current.refresh();
         console.log(graphRef);
-        graphRef.current.cameraPosition(
+        graphRef.current?.cameraPosition(
             initCoords,
             { x: 0, y: 0, z: 0 }, // lookAt ({ x, y, z })
             2000 // ms transition duration
         );
-        
+
     }
 
-    function screenshotGraph() {
+    async function screenshotGraph() {
         const now = new Date();
-        window.requestAnimationFrame(() => {
-            window.cancelAnimationFrame(0);
-            graphRef.current.renderer().domElement.toBlob(function (blob: any) {
-                saveAs(
-                    blob,
-                    `3d_Visualizer_${now.toLocaleDateString()}-${numScreenshots}}`
-                );
+        const graphInstance = graphRef.current;
+
+        if (!graphInstance) return;
+
+        // Check if it's a ForceGraph3D instance for 3D graph capture
+        if (typeof graphInstance.renderer === "function" && graphInstance.renderer().domElement) {
+            const canvas = graphInstance.renderer().domElement;
+
+            // Upscale for higher quality screenshot
+            const originalWidth = canvas.width;
+            const originalHeight = canvas.height;
+            const scaleFactor = 2;
+
+            canvas.width = originalWidth * scaleFactor;
+            canvas.height = originalHeight * scaleFactor;
+            graphInstance.renderer().setSize(canvas.width, canvas.height);
+            graphInstance.camera().updateProjectionMatrix();
+            graphInstance.renderer().render(graphInstance.scene(), graphInstance.camera());
+
+            // Fill with a white background
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Convert canvas to a blob and trigger download
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    saveAs(blob, `3D_Visualizer_${now.toLocaleDateString()}-${numScreenshots}.png`);
+                    setNumScreenshots(numScreenshots + 1);
+                }
+
+                // Reset canvas dimensions to original size
+                canvas.width = originalWidth;
+                canvas.height = originalHeight;
+                graphInstance.renderer().setSize(originalWidth, originalHeight);
+                graphInstance.camera().updateProjectionMatrix();
             });
-            setNumScreenshots(++numScreenshots);
-        });
+
+        } else if (graphInstance instanceof HTMLElement) {
+            // For 2D graphs, we use toPng to capture the graph
+            toPng(graphInstance, { backgroundColor: '#ffffff' })
+                .then((dataUrl) => {
+                    // Create a link and trigger the download of the captured image
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = `2D_Visualizer_${now.toLocaleDateString()}.png`;
+                    a.click();
+                })
+                .catch((err) => {
+                    console.error('Failed to capture graph:', err);
+                });
+        }
     }
 
     function handleCompareClick() {
@@ -172,7 +222,7 @@ const GraphMenuButtons: React.FC<Props> = ({
 
     return (
         <div className="flex flex-col gap-2 w-full h-fit">
-            {viewMode === ViewMode.CommGraph && 
+            {viewMode === ViewMode.CommGraph &&
                 <ToggleSwitch isChecked= {showCodeCoverage} handleClick = {handleCCToggleClick} isDisabled = {!codeCoveragePossible} text={codeCoveragePossible ? "Code Cov." : "Code Cov. Disabled"}/> //codeCoveragePossible is NOT-ed because if its true, disabled should be false, vice-verse
             }
             <GraphButton onClick={importGraph}>Import</GraphButton>

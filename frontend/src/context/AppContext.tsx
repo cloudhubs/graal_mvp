@@ -13,6 +13,7 @@ interface AppContextType {
   contextMap: typeof contextData,
   search: string,
   selectedSearchValue: string,
+  selectedSearchSecondValue: string,
   sliderValue: number,
   initCoords: any,
   initRotation: any,
@@ -22,6 +23,10 @@ interface AppContextType {
   subContextNodes: Map<String, Node>,
   showCodeCoverage: boolean,
   codeCoveragePossible: boolean,
+  is3DView: boolean;
+  getNodes: () => any[];
+  getEdges: () => any[];
+  reactFlowInstance: any;
   setStateVar?: (field: keyof AppContextType, value: any) => void;
 }
 
@@ -33,6 +38,7 @@ export function AppPageContext({ children }: any) {
     contextMap: contextData,
     search: "",
     selectedSearchValue: "",
+    selectedSearchSecondValue: "",
     sliderValue: 8,
     initCoords: null,
     initRotation: null,
@@ -42,6 +48,10 @@ export function AppPageContext({ children }: any) {
     subContextNodes: new Map<String, Node>(),
     codeCoveragePossible: false,
     showCodeCoverage: false,
+    is3DView: true,
+    getNodes: () => [],
+    getEdges: () => [],
+    reactFlowInstance: null,
   });
   const setStateVar = (field: keyof AppContextType, value: any) => {
     setState((prevState) => ({

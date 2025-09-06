@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@caliorg/jointjs": "^3.1.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -11,8 +12,14 @@
     "@types/node": "^18.13.0",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
+    "@xyflow/react": "^12.8.2",
+    "@xyflow/system": "^0.0.66",
     "d3-force-3d": "^3.0.5",
+    "dom-to-image-more": "^3.6.0",
     "file-saver": "^2.0.5",
+    "html-to-image": "^1.11.11",
+    "html2canvas": "^1.4.1",
+    "jointjs": "^3.7.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-force-graph": "^1.41.20",
@@ -49,6 +56,7 @@
     ]
   },
   "devDependencies": {
+    "@types/html2canvas": "^1.0.0",
     "@types/three": "^0.149.0",
     "tailwindcss": "^3.2.4"
   }
